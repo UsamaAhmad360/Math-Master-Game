@@ -65,7 +65,7 @@ Super Simple Dev
 +1
 
 📦 Local Usage / Development
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/UsamaAhmad360/Math-Master-Game.git
 cd your-repo-name
 open index.html   # or double-click index.html in your file explorer
 
