@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Master - Fun Learning Game</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="favicon.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .bounce { animation: bounce 0.5s ease-in-out; }
+        .shake { animation: shake 0.3s ease-in-out; }
+        
+        .correct-answer {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            transform: scale(1.05);
+        }
+        
+        .wrong-answer {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .timer-warning {
+            animation: pulse 0.5s ease-in-out infinite;
+            color: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- Main Menu -->
+        <div id="mainMenu">
+            <div class="text-center mb-8">
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-2 drop-shadow-lg">🎓 Math Master 🎓</h1>
+                <p class="text-xl text-white/90">Choose Your Game Mode</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <button onclick="selectMode('basic')" class="bg-white/95 backdrop-blur p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all text-left">
+                    <div class="text-5xl mb-3">📚</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Basic Math</h3>
+                    <p class="text-sm text-gray-600">Practice +, −, ×, ÷</p>
+                </button>
+
+                <button onclick="selectMode('speed')" class="bg-white/95 backdrop-blur p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all text-left">
+                    <div class="text-5xl mb-3">⚡</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Speed Challenge</h3>
+                    <p class="text-sm text-gray-600">Race against time!</p>
+                </button>
+
+                <button onclick="selectMode('mental')" class="bg-white/95 backdrop-blur p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all text-left">
+                    <div class="text-5xl mb-3">🧠</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Mental Math</h3>
+                    <p class="text-sm text-gray-600">Train your brain</p>
+                </button>
+
+                <button onclick="selectMode('bodmas')" class="bg-white/95 backdrop-blur p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all text-left">
+                    <div class="text-5xl mb-3">🧮</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">BODMAS</h3>
+                    <p class="text-sm text-gray-600">Order of operations</p>
+                </button>
+
+                <button onclick="selectMode('puzzle')" class="bg-white/95 backdrop-blur p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all text-left">
+                    <div class="text-5xl mb-3">🧩</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Puzzles</h3>
+                    <p class="text-sm text-gray-600">Number grids</p>
+                </button>
+
+                <button onclick="selectMode('logic')" class="bg-white/95 backdrop-blur p-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all text-left">
+                    <div class="text-5xl mb-3">🔢</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Sequences</h3>
+                    <p class="text-sm text-gray-600">Find patterns</p>
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="bg-white/95 backdrop-blur rounded-2xl p-6 shadow-xl">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Your Progress</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-blue-100 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-blue-700" id="totalScore">0</div>
+                        <div class="text-xs text-blue-600">Total Score</div>
+                    </div>
+                    <div class="bg-green-100 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-green-700" id="gamesPlayed">0</div>
+                        <div class="text-xs text-green-600">Games Played</div>
+                    </div>
+                    <div class="bg-purple-100 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-purple-700" id="avgAccuracy">0%</div>
+                        <div class="text-xs text-purple-600">Avg Accuracy</div>
+                    </div>
+                    <div class="bg-yellow-100 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-yellow-700" id="totalStars">⭐ 0</div>
+                        <div class="text-xs text-yellow-600">Total Stars</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Screen -->
+        <div id="setupScreen" class="hidden">
+            <div class="bg-white/95 backdrop-blur rounded-2xl p-8 shadow-xl">
+                <button onclick="backToMenu()" class="mb-4 text-purple-600 hover:text-purple-800 font-semibold">← Back</button>
+                <h2 id="setupTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center"></h2>
+                <div id="setupContent"></div>
+                <button onclick="startGame()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl text-xl mt-6 transform hover:scale-105 transition-all">
+                    Start! 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="bg-white/95 backdrop-blur rounded-2xl p-6 shadow-xl">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-4 text-sm">
+                    <button onclick="pauseGame()" id="pauseBtn" class="text-purple-600 hover:text-purple-800 font-semibold">⏸ Pause</button>
+                    <div id="timer" class="text-xl font-bold text-purple-800"></div>
+                    <div id="questionNum" class="text-purple-600 font-semibold">Q: 1/10</div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="bg-blue-100 rounded-lg p-2 text-center">
+                        <div class="text-xs text-blue-600">Score</div>
+                        <div id="score" class="text-lg font-bold text-blue-800">0</div>
+                    </div>
+                    <div class="bg-green-100 rounded-lg p-2 text-center">
+                        <div class="text-xs text-green-600">Streak</div>
+                        <div id="streak" class="text-lg font-bold text-green-800">0</div>
+                    </div>
+                    <div class="bg-purple-100 rounded-lg p-2 text-center">
+                        <div class="text-xs text-purple-600">Accuracy</div>
+                        <div id="accuracy" class="text-lg font-bold text-purple-800">100%</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="bg-gray-200 rounded-full h-2 mb-6">
+                    <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+                </div>
+
+                <!-- Question Area -->
+                <div id="questionArea"></div>
+
+                <!-- Controls -->
+                <div class="flex gap-2 justify-center mt-4">
+                    <button onclick="skipQuestion()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-sm">Skip ⏭</button>
+                    <button onclick="endGame()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-sm">End 🏁</button>
+                </div>
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback" class="hidden bg-white/95 backdrop-blur rounded-2xl p-6 shadow-xl text-center mt-4 bounce">
+                <div id="feedbackMsg" class="text-3xl font-bold mb-2"></div>
+                <div id="feedbackDetail" class="text-lg"></div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="hidden">
+            <div class="bg-white/95 backdrop-blur rounded-2xl p-8 shadow-xl text-center">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Game Complete! 🎉</h2>
+                <div id="stars" class="text-6xl mb-6"></div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-100 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-blue-700" id="finalScore">0</div>
+                        <div class="text-blue-600">Score</div>
+                    </div>
+                    <div class="bg-green-100 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-green-700" id="finalAccuracy">0%</div>
+                        <div class="text-green-600">Accuracy</div>
+                    </div>
+                    <div class="bg-purple-100 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-purple-700" id="questionsAnswered">0/0</div>
+                        <div class="text-purple-600">Correct</div>
+                    </div>
+                    <div class="bg-orange-100 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-orange-700" id="timeTaken">0s</div>
+                        <div class="text-orange-600">Time</div>
+                    </div>
+                </div>
+
+                <div id="resultMsg" class="text-xl text-gray-700 mb-6 font-semibold"></div>
+
+                <div class="flex gap-3 justify-center flex-wrap">
+                    <button onclick="playAgain()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl">Play Again 🔄</button>
+                    <button onclick="backToMenu()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl">Menu 🏠</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Unlimited Prompt Modal -->
+        <div id="unlimitedPromptModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl transform scale-100 transition-all animate-bounce-in">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Unlimited Mode? ♾️</h3>
+                <p class="text-lg text-gray-600 mb-8 text-center">Do you want to enable unlimited questions for unlimited time in this session?</p>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="confirmUnlimited(false)" class="min-w-[100px] px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 border-2 border-gray-200 transition-all hover:scale-105">No</button>
+                    <button onclick="confirmUnlimited(true)" class="min-w-[100px] px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg transition-all hover:scale-105">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let game = {
+            mode: null,
+            score: 0,
+            streak: 0,
+            questionNum: 0,
+            correct: 0,
+            total: 10,
+            difficulty: 'easy',
+            operations: ['+', '-'],
+            current: null,
+            queue: [],
+            answered: false,
+            timer: null,
+            timeLimit: 0,
+            elapsed: 0,
+            paused: false,
+            startTime: null,
+            totalAnswered: 0, // Track only answered questions for accurate stats
+            preloading: false // Prevent multiple concurrent preload operations
+        };
+
+        let stats = {
+            totalScore: 0,
+            gamesPlayed: 0,
+            totalStars: 0,
+            totalCorrect: 0,
+            totalQuestions: 0
+        };
+
+        const difficulty = {
+            easy: { min: 1, max: 10, points: 10, time: 30 },
+            medium: { min: 1, max: 25, points: 20, time: 20 },
+            hard: { min: 1, max: 50, points: 30, time: 15 }
+        };
+
+        const goodMsg = ["Awesome! 🌟", "Perfect! 💯", "Brilliant! 💡", "Amazing! 🎊", "Fantastic! 🎉", "Excellent! 👑"];
+        const tryMsg = ["Keep trying! 💪", "Almost! 🌟", "Good effort! 👍", "You're learning! 📚"];
+
+        loadStats();
+
+        function selectMode(mode) {
+            game.mode = mode;
+            hide('mainMenu');
+            show('setupScreen');
+            
+            const setups = {
+                basic: getBasicSetup,
+                speed: getSpeedSetup,
+                mental: getMentalSetup,
+                bodmas: getBodmasSetup,
+                puzzle: getPuzzleSetup,
+                logic: getLogicSetup
+            };
+
+            const titles = {
+                basic: '📚 Basic Math Practice',
+                speed: '⚡ Speed Challenge',
+                mental: '🧠 Mental Math Training',
+                bodmas: '🧮 BODMAS Practice',
+                puzzle: '🧩 Number Puzzles',
+                logic: '🔢 Logic & Sequences'
+            };
+
+            el('setupTitle').textContent = titles[mode];
+            el('setupContent').innerHTML = setups[mode]();
+            loadPreferences(mode); // Load saved settings for this mode
+        }
+
+        function getBasicSetup() {
+            return `
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Difficulty:</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setDifficulty('easy')" class="diff-btn bg-green-500 text-white font-bold py-2 rounded-lg ring-2 ring-green-300">Easy (1-10)</button>
+                            <button onclick="setDifficulty('medium')" class="diff-btn bg-yellow-500 text-white font-bold py-2 rounded-lg">Medium (1-25)</button>
+                            <button onclick="setDifficulty('hard')" class="diff-btn bg-red-500 text-white font-bold py-2 rounded-lg">Hard (1-50)</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Operations:</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2 bg-purple-100 p-2 rounded-lg cursor-pointer">
+                                <input type="checkbox" id="add" checked class="w-4 h-4"> <span>➕ Addition</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-purple-100 p-2 rounded-lg cursor-pointer">
+                                <input type="checkbox" id="sub" checked class="w-4 h-4"> <span>➖ Subtraction</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-purple-100 p-2 rounded-lg cursor-pointer">
+                                <input type="checkbox" id="mul" class="w-4 h-4"> <span>✖️ Multiplication</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-purple-100 p-2 rounded-lg cursor-pointer">
+                                <input type="checkbox" id="div" class="w-4 h-4"> <span>➗ Division</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Questions:</h3>
+                        <select id="qCount" class="w-full p-2 rounded-lg border-2 border-purple-300">
+                            <option value="5">5 Questions</option>
+                            <option value="10" selected>10 Questions</option>
+                            <option value="15">15 Questions</option>
+                            <option value="20">20 Questions</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSpeedSetup() {
+            return `
+                <div class="space-y-4">
+                    <div class="bg-red-50 border-2 border-red-300 rounded-lg p-3">
+                        <p class="text-red-800 text-sm">⚡ Answer as many as you can before time runs out!</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Time Limit:</h3>
+                        <select id="timeLimit" class="w-full p-2 rounded-lg border-2 border-purple-300">
+                            <option value="30">30 Seconds ⚡</option>
+                            <option value="60" selected>1 Minute 🏃</option>
+                            <option value="120">2 Minutes ⏱</option>
+                            <option value="180">3 Minutes 🕐</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Difficulty:</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setDifficulty('easy')" class="diff-btn bg-green-500 text-white font-bold py-2 rounded-lg ring-2 ring-green-300">Easy</button>
+                            <button onclick="setDifficulty('medium')" class="diff-btn bg-yellow-500 text-white font-bold py-2 rounded-lg">Medium</button>
+                            <button onclick="setDifficulty('hard')" class="diff-btn bg-red-500 text-white font-bold py-2 rounded-lg">Hard</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getMentalSetup() {
+            return `
+                <div class="space-y-4">
+                    <div class="bg-purple-50 border-2 border-purple-300 rounded-lg p-3">
+                        <p class="text-purple-800 text-sm">🧠 Quick mental calculations with timer per question!</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Type:</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setType('addition')" class="type-btn bg-blue-500 text-white font-bold py-2 rounded-lg ring-2 ring-blue-300">Addition</button>
+                            <button onclick="setType('multiplication')" class="type-btn bg-pink-500 text-white font-bold py-2 rounded-lg">Times Tables</button>
+                            <button onclick="setType('mixed')" class="type-btn bg-purple-500 text-white font-bold py-2 rounded-lg">Mixed Ops</button>
+                            <button onclick="setType('chains')" class="type-btn bg-orange-500 text-white font-bold py-2 rounded-lg">Chains</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Time per Question:</h3>
+                        <select id="timePerQ" class="w-full p-2 rounded-lg border-2 border-purple-300">
+                            <option value="5">5 seconds 🔥</option>
+                            <option value="10" selected>10 seconds ⚡</option>
+                            <option value="15">15 seconds ⏱</option>
+                            <option value="20">20 seconds 🌟</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getBodmasSetup() {
+            return `
+                <div class="space-y-4">
+                    <div class="bg-cyan-50 border-2 border-cyan-300 rounded-lg p-3">
+                        <p class="text-cyan-800 text-sm">🧮 <strong>B</strong>rackets → <strong>O</strong>rders → <strong>DM</strong> → <strong>AS</strong></p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Complexity:</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setDifficulty('easy')" class="diff-btn bg-green-500 text-white font-bold py-2 rounded-lg ring-2 ring-green-300 text-sm">Beginner</button>
+                            <button onclick="setDifficulty('medium')" class="diff-btn bg-yellow-500 text-white font-bold py-2 rounded-lg text-sm">Medium</button>
+                            <button onclick="setDifficulty('hard')" class="diff-btn bg-red-500 text-white font-bold py-2 rounded-lg text-sm">Advanced</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Questions:</h3>
+                        <select id="qCount" class="w-full p-2 rounded-lg border-2 border-purple-300">
+                            <option value="5">5 Questions</option>
+                            <option value="10" selected>10 Questions</option>
+                            <option value="15">15 Questions</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPuzzleSetup() {
+            return `
+                <div class="space-y-4">
+                    <div class="bg-green-50 border-2 border-green-300 rounded-lg p-3">
+                        <p class="text-green-800 text-sm">🧩 Solve number grids and find missing values!</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Type:</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setType('missing')" class="type-btn bg-green-500 text-white font-bold py-2 rounded-lg ring-2 ring-green-300">Missing Number</button>
+                            <button onclick="setType('equation')" class="type-btn bg-teal-500 text-white font-bold py-2 rounded-lg">Equations</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Difficulty:</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setDifficulty('easy')" class="diff-btn bg-green-500 text-white font-bold py-2 rounded-lg ring-2 ring-green-300">Easy</button>
+                            <button onclick="setDifficulty('medium')" class="diff-btn bg-yellow-500 text-white font-bold py-2 rounded-lg">Medium</button>
+                            <button onclick="setDifficulty('hard')" class="diff-btn bg-red-500 text-white font-bold py-2 rounded-lg">Hard</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getLogicSetup() {
+            return `
+                <div class="space-y-4">
+                    <div class="bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
+                        <p class="text-orange-800 text-sm">🔢 Find patterns and complete sequences!</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Pattern Type:</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setType('arithmetic')" class="type-btn bg-orange-500 text-white font-bold py-2 rounded-lg ring-2 ring-orange-300 text-sm">Arithmetic</button>
+                            <button onclick="setType('geometric')" class="type-btn bg-red-500 text-white font-bold py-2 rounded-lg text-sm">Geometric</button>
+                            <button onclick="setType('fibonacci')" class="type-btn bg-pink-500 text-white font-bold py-2 rounded-lg text-sm">Fibonacci</button>
+                            <button onclick="setType('mixed')" class="type-btn bg-purple-500 text-white font-bold py-2 rounded-lg text-sm">Mixed</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">Questions:</h3>
+                        <select id="qCount" class="w-full p-2 rounded-lg border-2 border-purple-300">
+                            <option value="5">5 Questions</option>
+                            <option value="10" selected>10 Questions</option>
+                            <option value="15">15 Questions</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setDifficulty(level) {
+            game.difficulty = level;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('ring-2', 'ring-green-300', 'ring-yellow-300', 'ring-red-300'));
+            event.target.classList.add('ring-2', level === 'easy' ? 'ring-green-300' : level === 'medium' ? 'ring-yellow-300' : 'ring-red-300');
+        }
+
+        function setType(type) {
+            game.type = type;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('ring-2', 'ring-blue-300', 'ring-pink-300', 'ring-purple-300', 'ring-orange-300', 'ring-green-300', 'ring-teal-300', 'ring-red-300'));
+            const colors = {addition: 'ring-blue-300', multiplication: 'ring-pink-300', mixed: 'ring-purple-300', chains: 'ring-orange-300', missing: 'ring-green-300', equation: 'ring-teal-300', arithmetic: 'ring-orange-300', geometric: 'ring-red-300', fibonacci: 'ring-pink-300'};
+            event.target.classList.add('ring-2', colors[type] || 'ring-purple-300');
+        }
+
+        function startGame() {
+            savePreferences(game.mode);
+            // Pre-validation
+            if(game.mode === 'basic') {
+                 const ops = [];
+                 if(el('add')?.checked) ops.push('+');
+                 if(el('sub')?.checked) ops.push('-');
+                 if(el('mul')?.checked) ops.push('*');
+                 if(el('div')?.checked) ops.push('/');
+                 if(ops.length === 0) return alert('Select at least one operation!');
+            }
+            
+            show('unlimitedPromptModal');
+        }
+
+        function confirmUnlimited(isUnlimited) {
+            hide('unlimitedPromptModal');
+            startActualGame(isUnlimited);
+        }
+
+        function startActualGame(forceUnlimited) {
+            // 1. Configuration
+            game.timePerQ = 0; // Default
+            game.timeLimit = 0;
+
+            if(game.mode === 'basic') {
+                const ops = [];
+                if(el('add')?.checked) ops.push('+');
+                if(el('sub')?.checked) ops.push('-');
+                if(el('mul')?.checked) ops.push('*');
+                if(el('div')?.checked) ops.push('/');
+                game.operations = ops;
+                game.total = parseInt(el('qCount').value);
+            } else if(game.mode === 'speed') {
+                game.timeLimit = parseInt(el('timeLimit').value);
+                game.total = 999999; 
+                game.operations = ['+', '-', '*', '/'];
+            } else if(game.mode === 'mental') {
+                game.timePerQ = parseInt(el('timePerQ').value);
+                game.total = 10;
+                game.type = game.type || 'addition';
+            } else if(game.mode === 'bodmas') {
+                game.total = parseInt(el('qCount').value);
+            } else if(game.mode === 'puzzle') {
+                game.type = game.type || 'missing';
+                game.total = 5;
+            } else if(game.mode === 'logic') {
+                game.type = game.type || 'arithmetic';
+                game.total = parseInt(el('qCount').value);
+            }
+
+            // 2. Override
+            if (forceUnlimited) {
+                game.total = 999999;
+                game.timeLimit = 0;
+                game.timePerQ = 0;
+            }
+
+            // 3. Initialization
+            game.score = 0;
+            game.streak = 0;
+            game.questionNum = 0;
+            game.correct = 0;
+            game.elapsed = 0;
+            game.startTime = Date.now();
+            game.queue = [];
+
+            preloadQuestions();
+            hide('setupScreen');
+            show('gameScreen');
+
+            // 4. Timers
+            // FIXED: Only start timers if there's a time limit
+            if(game.mode === 'speed' && game.timeLimit > 0 && !forceUnlimited) startSpeedTimer();
+            else if(game.timePerQ > 0 && !forceUnlimited) startQuestionTimer();
+
+            nextQuestion();
+            updateUI();
+        }
+
+        function preloadQuestions() {
+            // Infinite question generation - will never run out
+            while(game.queue.length < 5) {
+                const q = createQuestion();
+                if(q) game.queue.push(q);
+            }
+        }
+
+        function createQuestion() {
+            if(game.mode === 'basic' || game.mode === 'speed') return createBasic();
+            if(game.mode === 'mental') return createMental();
+            if(game.mode === 'bodmas') return createBodmas();
+            if(game.mode === 'puzzle') return createPuzzle();
+            if(game.mode === 'logic') return createLogic();
+        }
+
+        function createBasic() {
+            const d = difficulty[game.difficulty];
+            const op = game.operations[Math.floor(Math.random() * game.operations.length)];
+            let a, b, ans;
+            
+            // Infinite random generation - will create unique questions forever
+            if(op === '+') {
+                a = rand(d.min, d.max);
+                b = rand(d.min, d.max);
+                ans = a + b;
+            } else if(op === '-') {
+                a = rand(d.min, d.max);
+                b = rand(d.min, a > 0 ? a : d.min);
+                ans = a - b;
+            } else if(op === '*') {
+                a = rand(d.min, Math.min(12, d.max));
+                b = rand(d.min, Math.min(12, d.max));
+                ans = a * b;
+            } else {
+                b = rand(2, Math.min(12, d.max));
+                ans = rand(d.min, Math.min(12, d.max));
+                a = b * ans;
+            }
+
+            return {
+                display: `${a} ${op === '*' ? '×' : op === '/' ? '÷' : op} ${b}`,
+                answer: ans
+            };
+        }
+
+        function createMental() {
+            const type = game.type;
+            if(type === 'addition') {
+                const a = rand(10, 50);
+                const b = rand(10, 50);
+                return { display: `${a} + ${b}`, answer: a + b };
+            } else if(type === 'multiplication') {
+                const a = rand(2, 12);
+                const b = rand(2, 12);
+                return { display: `${a} × ${b}`, answer: a * b };
+            } else if(type === 'mixed') {
+                const ops = ['+', '-', '*'];
+                const op = ops[rand(0, 2)];
+                const a = rand(5, 20);
+                const b = rand(op === '*' ? 2 : 1, op === '*' ? 10 : 20);
+                const ans = op === '+' ? a + b : op === '-' ? a - b : a * b;
+                return { display: `${a} ${op === '*' ? '×' : op} ${b}`, answer: ans };
+            } else {
+                const a = rand(5, 10);
+                const b = rand(2, 5);
+                const c = rand(2, 5);
+                return { display: `(${a} + ${b}) × ${c}`, answer: (a + b) * c };
+            }
+        }
+
+        function createBodmas() {
+            const d = game.difficulty;
+            if(d === 'easy') {
+                if(Math.random() > 0.5) {
+                    const a = rand(2, 5);
+                    const b = rand(2, 5);
+                    const c = rand(1, 10);
+                    return { 
+                        display: `${a} × ${b} + ${c}`, 
+                        answer: a * b + c,
+                        explain: `First: ${a} × ${b} = ${a*b}, then: ${a*b} + ${c} = ${a*b+c}`
+                    };
+                } else {
+                    const a = rand(1, 10);
+                    const b = rand(1, 10);
+                    const c = rand(2, 3);
+                    return { 
+                        display: `(${a} + ${b}) × ${c}`, 
+                        answer: (a + b) * c,
+                        explain: `First: (${a} + ${b}) = ${a+b}, then: ${a+b} × ${c} = ${(a+b)*c}`
+                    };
+                }
+            } else {
+                const a = rand(2, 5);
+                const b = rand(2, 5);
+                const c = rand(2, 5);
+                const d = rand(1, 10);
+                return { 
+                    display: `(${a} + ${b}) × ${c} - ${d}`, 
+                    answer: (a + b) * c - d,
+                    explain: `(${a}+${b})=${a+b}, ${a+b}×${c}=${(a+b)*c}, ${(a+b)*c}-${d}=${(a+b)*c-d}`
+                };
+            }
+        }
+
+        function createPuzzle() {
+            if(game.type === 'missing') {
+                const a = rand(1, 10);
+                const b = rand(1, 10);
+                const op = Math.random() > 0.5 ? '+' : '*';
+                const ans = op === '+' ? a + b : a * b;
+                return {
+                    type: 'grid',
+                    grid: [[a, op === '+' ? '+' : '×', b], ['=', '=', '='], [ans, '', '']],
+                    answer: ans
+                };
+            } else {
+                const a = rand(1, 10);
+                const b = rand(1, 10);
+                return { display: `? + ${b} = ${a + b}`, answer: a };
+            }
+        }
+
+        function createLogic() {
+            const type = game.type || 'arithmetic';
+            // Infinite random pattern generation
+            if(type === 'arithmetic') {
+                const start = rand(1, 20);
+                const diff = rand(2, 10);
+                const seq = [start, start+diff, start+2*diff, start+3*diff];
+                return { 
+                    sequence: seq, 
+                    answer: start+4*diff,
+                    explain: `Adding ${diff} each time`
+                };
+            } else if(type === 'geometric') {
+                const start = rand(2, 5);
+                const multiplier = rand(2, 3);
+                const seq = [start, start*multiplier, start*Math.pow(multiplier,2), start*Math.pow(multiplier,3)];
+                return { 
+                    sequence: seq, 
+                    answer: start*Math.pow(multiplier,4),
+                    explain: `Multiplying by ${multiplier} each time`
+                };
+            } else if(type === 'fibonacci') {
+                const a = rand(1, 5);
+                const b = rand(2, 8);
+                const seq = [a, b, a+b, a+2*b];
+                return { 
+                    sequence: seq, 
+                    answer: 2*a+3*b,
+                    explain: 'Sum of previous two numbers'
+                };
+            } else {
+                // Mixed - randomly generate different pattern types
+                const patternType = rand(0, 3);
+                if(patternType === 0) {
+                    // Arithmetic
+                    const start = rand(1, 15);
+                    const diff = rand(3, 8);
+                    const seq = [start, start+diff, start+2*diff, start+3*diff];
+                    return { sequence: seq, answer: start+4*diff, explain: `Adding ${diff}` };
+                } else if(patternType === 1) {
+                    // Doubling
+                    const start = rand(2, 5);
+                    return { sequence: [start, start*2, start*4, start*8], answer: start*16, explain: 'Doubling' };
+                } else if(patternType === 2) {
+                    // Squares
+                    const n = rand(1, 3);
+                    return { sequence: [n*n, (n+1)*(n+1), (n+2)*(n+2), (n+3)*(n+3)], answer: (n+4)*(n+4), explain: 'Perfect squares' };
+                } else {
+                    // Add 2, multiply 2 alternating
+                    const start = rand(2, 4);
+                    return { sequence: [start, start+2, (start+2)*2, (start+2)*2+2], answer: ((start+2)*2+2)*2, explain: 'Add 2, ×2, repeat' };
+                }
+            }
+        }
+
+        function nextQuestion() {
+            game.questionNum++;
+            game.answered = false;
+
+            if(game.questionNum > game.total && game.mode !== 'speed') {
+                endGame();
+                return;
+            }
+
+            if(game.queue.length > 0) {
+                game.current = game.queue.shift();
+                if(game.queue.length < 5) setTimeout(preloadQuestions, 0);
+            } else {
+                game.current = createQuestion();
+            }
+
+            displayQuestion();
+            updateUI();
+
+            if(game.mode === 'mental' && !game.qTimer) startQuestionTimer();
+        }
+
+        function displayQuestion() {
+            const q = game.current;
+            if(!q) return;
+
+            if(q.type === 'grid') {
+                displayGrid();
+            } else if(q.sequence) {
+                displaySequence();
+            } else {
+                displayMultiChoice();
+            }
+        }
+
+        function displayMultiChoice() {
+            const q = game.current;
+            const choices = [q.answer];
+            while(choices.length < 4) {
+                const wrong = Math.random() > 0.5 ? q.answer + rand(1, 10) : Math.max(0, q.answer - rand(1, 10));
+                if(!choices.includes(wrong) && wrong >= 0) choices.push(wrong);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            el('questionArea').innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="text-4xl font-bold text-gray-800">${q.display} = ?</div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    ${choices.map(c => `
+                        <button onclick="checkAnswer(${c})" class="ans-btn bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-6 rounded-xl text-2xl transform hover:scale-105 transition-all">
+                            ${c}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function displayGrid() {
+            const q = game.current;
+            const choices = [q.answer];
+            while(choices.length < 4) {
+                const wrong = q.answer + rand(-5, 5);
+                if(!choices.includes(wrong) && wrong > 0) choices.push(wrong);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            el('questionArea').innerHTML = `
+                <div class="text-center mb-4">
+                    <p class="text-lg font-semibold mb-3">Find the missing number:</p>
+                    <div class="inline-block bg-white p-4 rounded-xl shadow">
+                        <div class="grid grid-cols-3 gap-2">
+                            ${q.grid.flat().map(cell => `
+                                <div class="w-12 h-12 border-2 border-purple-500 flex items-center justify-center text-xl font-bold ${cell === '' ? 'bg-yellow-100' : 'bg-gray-50'} rounded">
+                                    ${cell === '' ? '?' : cell}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    ${choices.map(c => `
+                        <button onclick="checkAnswer(${c})" class="ans-btn bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-6 rounded-xl text-2xl transform hover:scale-105 transition-all">
+                            ${c}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function displaySequence() {
+            const q = game.current;
+            const choices = [q.answer];
+            while(choices.length < 4) {
+                const wrong = q.answer + rand(-10, 10);
+                if(!choices.includes(wrong) && wrong > 0) choices.push(wrong);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            el('questionArea').innerHTML = `
+                <div class="text-center mb-6">
+                    <p class="text-lg font-semibold mb-3">What comes next?</p>
+                    <div class="flex justify-center gap-3 mb-4 flex-wrap">
+                        ${q.sequence.map(n => `
+                            <div class="bg-orange-500 text-white font-bold text-2xl w-12 h-12 flex items-center justify-center rounded-lg shadow-lg">${n}</div>
+                        `).join('')}
+                        <div class="bg-yellow-300 text-gray-800 font-bold text-2xl w-12 h-12 flex items-center justify-center rounded-lg shadow-lg">?</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    ${choices.map(c => `
+                        <button onclick="checkAnswer(${c})" class="ans-btn bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-6 rounded-xl text-2xl transform hover:scale-105 transition-all">
+                            ${c}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function checkAnswer(ans) {
+            if(game.answered) return;
+            game.answered = true;
+            game.totalAnswered++; // Increment only when actually answered
+            
+            const correct = ans === game.current.answer;
+
+            if(game.qTimer) clearInterval(game.qTimer);
+
+            document.querySelectorAll('.ans-btn').forEach(btn => {
+                const val = parseInt(btn.textContent);
+                if(val === game.current.answer) btn.classList.add('correct-answer');
+                else if(val === ans && !correct) btn.classList.add('wrong-answer');
+            });
+
+            if(correct) {
+                const pts = difficulty[game.difficulty].points;
+                const bonus = game.streak >= 3 ? Math.floor(pts * 0.5) : 0;
+                game.score += pts + bonus;
+                game.correct++;
+                game.streak++;
+                showFeedback(true, bonus, pts);
+            } else {
+                game.streak = 0;
+                showFeedback(false);
+            }
+
+            updateUI();
+            setTimeout(() => {
+                // FIXED: Only end game if there's a time limit AND time has expired
+                if(game.mode === 'speed' && game.timeLimit > 0 && game.elapsed >= game.timeLimit) {
+                    endGame();
+                } else {
+                    hide('feedback');
+                    nextQuestion();
+                }
+            }, 2000);
+        }
+
+        function showFeedback(correct, bonus = 0, pts = 0) {
+            show('feedback');
+            const msg = el('feedbackMsg');
+            const detail = el('feedbackDetail');
+
+            if(correct) {
+                msg.textContent = goodMsg[rand(0, goodMsg.length - 1)];
+                msg.className = 'text-3xl font-bold mb-2 text-green-600';
+                detail.textContent = bonus > 0 ? `+${pts} points + ${bonus} streak bonus! 🔥` : `+${pts} points!`;
+                detail.className = 'text-lg text-green-700';
+            } else {
+                msg.textContent = tryMsg[rand(0, tryMsg.length - 1)];
+                msg.className = 'text-3xl font-bold mb-2 text-red-600';
+                const q = game.current;
+                detail.textContent = q.explain ? `Answer: ${q.answer}. ${q.explain}` : `The answer is ${q.answer}`;
+                detail.className = 'text-lg text-red-700';
+            }
+        }
+
+        function skipQuestion() {
+            if(game.answered) return;
+            game.answered = true;
+            game.totalAnswered++; // Count skipped questions too
+            game.streak = 0;
+            nextQuestion();
+        }
+
+        function startSpeedTimer() {
+            game.timer = setInterval(() => {
+                if(!game.paused) {
+                    game.elapsed++;
+                    const remaining = game.timeLimit - game.elapsed;
+                    if(remaining <= 0) {
+                        clearInterval(game.timer);
+                        endGame();
+                    } else {
+                        updateTimer(remaining);
+                    }
+                }
+            }, 1000);
+        }
+
+        function startQuestionTimer() {
+            if(game.qTimer) clearInterval(game.qTimer);
+            let time = game.timePerQ;
+            updateTimer(time);
+
+            game.qTimer = setInterval(() => {
+                if(!game.paused) {
+                    time--;
+                    updateTimer(time);
+                    if(time <= 0) {
+                        clearInterval(game.qTimer);
+                        if(!game.answered) {
+                            game.answered = true;
+                            game.streak = 0;
+                            showFeedback(false);
+                            setTimeout(() => nextQuestion(), 2000);
+                        }
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimer(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            el('timer').textContent = `⏱ ${m}:${s.toString().padStart(2, '0')}`;
+            if(sec <= 10 && sec > 0) el('timer').classList.add('timer-warning');
+            else el('timer').classList.remove('timer-warning');
+        }
+
+        function updateUI() {
+            el('score').textContent = game.score;
+            el('streak').textContent = game.streak;
+            // FIXED: Use totalAnswered for accurate accuracy calculation
+            const acc = game.totalAnswered > 0 ? Math.round((game.correct / game.totalAnswered) * 100) : 100;
+            el('accuracy').textContent = acc + '%';
+
+            // Question Counter & Progress
+            if(game.total >= 999999) {
+                el('questionNum').textContent = `Q: ${game.questionNum}`;
+                el('progressBar').parentNode.classList.add('hidden');
+            } else {
+                el('questionNum').textContent = `Q: ${game.questionNum}/${game.total}`;
+                el('progressBar').parentNode.classList.remove('hidden');
+                el('progressBar').style.width = (game.questionNum / game.total * 100) + '%';
+            }
+
+            // Timer Visibility
+            if(game.timeLimit === 0 && (!game.timePerQ || game.timePerQ === 0)) {
+                el('timer').style.display = 'none';
+            } else {
+                el('timer').style.display = 'block';
+                el('timer').classList.remove('hidden');
+            }
+        }
+
+        function pauseGame() {
+            game.paused = !game.paused;
+            el('pauseBtn').textContent = game.paused ? '▶ Resume' : '⏸ Pause';
+        }
+
+        function endGame() {
+            if(game.timer) clearInterval(game.timer);
+            if(game.qTimer) clearInterval(game.qTimer);
+
+            const time = Math.floor((Date.now() - game.startTime) / 1000);
+            // FIXED: Use totalAnswered for accurate accuracy calculation
+            const acc = game.totalAnswered > 0 ? Math.round((game.correct / game.totalAnswered) * 100) : 0;
+
+            hide('gameScreen');
+            show('resultsScreen');
+
+            el('finalScore').textContent = game.score;
+            el('finalAccuracy').textContent = acc + '%';
+            // FIXED: Show correct vs total answered (not presented)
+            el('questionsAnswered').textContent = `${game.correct}/${game.totalAnswered}`;
+            
+            const m = Math.floor(time / 60);
+            const s = time % 60;
+            el('timeTaken').textContent = m > 0 ? `${m}m ${s}s` : `${s}s`;
+
+            let stars = 0;
+            let msg = '';
+
+            if(acc >= 90) {
+                stars = 5;
+                msg = "Perfect! You're a Math Master! 🏆";
+            } else if(acc >= 80) {
+                stars = 4;
+                msg = 'Excellent work! Keep it up! 🌟';
+            } else if(acc >= 70) {
+                stars = 3;
+                msg = "Great job! You're improving! 👍";
+            } else if(acc >= 50) {
+                stars = 2;
+                msg = 'Good effort! Keep practicing! 📚';
+            } else {
+                stars = 1;
+                msg = 'Keep trying! Practice makes perfect! 💪';
+            }
+
+            el('stars').textContent = '⭐'.repeat(stars);
+            el('resultMsg').textContent = msg;
+
+            // Update overall stats
+            stats.totalScore += game.score;
+            stats.gamesPlayed++;
+            stats.totalStars += stars;
+            stats.totalCorrect += game.correct;
+            // FIXED: Use totalAnswered for consistent stats tracking
+            stats.totalQuestions += game.totalAnswered;
+            saveStats();
+        }
+
+        function playAgain() {
+            hide('resultsScreen');
+            selectMode(game.mode);
+        }
+
+        function backToMenu() {
+            if(game.timer) clearInterval(game.timer);
+            if(game.qTimer) clearInterval(game.qTimer);
+
+            hide('setupScreen');
+            hide('gameScreen');
+            hide('resultsScreen');
+            show('mainMenu');
+
+            game = {
+                mode: null, score: 0, streak: 0, questionNum: 0, correct: 0, total: 10,
+                difficulty: 'easy', operations: ['+', '-'], current: null, queue: [],
+                answered: false, timer: null, timeLimit: 0, elapsed: 0, paused: false,
+                startTime: null, totalAnswered: 0, preloading: false
+            };
+        }
+
+        function loadStats() {
+            const saved = localStorage.getItem('mathMasterStats');
+            if(saved) stats = JSON.parse(saved);
+            updateStatsDisplay();
+        }
+
+        function saveStats() {
+            localStorage.setItem('mathMasterStats', JSON.stringify(stats));
+            updateStatsDisplay();
+        }
+
+        function updateStatsDisplay() {
+            el('totalScore').textContent = stats.totalScore;
+            el('gamesPlayed').textContent = stats.gamesPlayed;
+            const avgAcc = stats.totalQuestions > 0 ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0;
+            el('avgAccuracy').textContent = avgAcc + '%';
+            el('totalStars').textContent = '⭐ ' + stats.totalStars;
+        }
+
+        function savePreferences(mode) {
+            const prefs = JSON.parse(localStorage.getItem('mathMasterPrefs') || '{}');
+            if (!prefs[mode]) prefs[mode] = {};
+            
+            const inputs = el('setupContent').querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if(input.id) {
+                    if (input.type === 'checkbox') prefs[mode][input.id] = input.checked;
+                    else prefs[mode][input.id] = input.value;
+                }
+            });
+            
+            prefs[mode]._difficulty = game.difficulty;
+            prefs[mode]._type = game.type;
+
+            localStorage.setItem('mathMasterPrefs', JSON.stringify(prefs));
+        }
+
+        function loadPreferences(mode) {
+            const prefs = JSON.parse(localStorage.getItem('mathMasterPrefs') || '{}');
+            if (!prefs[mode]) return;
+
+            const p = prefs[mode];
+
+            Object.keys(p).forEach(key => {
+                if (key.startsWith('_')) return;
+                const input = el(key);
+                if (input) {
+                    if (input.type === 'checkbox') input.checked = p[key];
+                    else input.value = p[key];
+                }
+            });
+
+            if (p._difficulty) {
+                const btns = el('setupContent').querySelectorAll('.diff-btn');
+                btns.forEach(btn => {
+                    if(btn.getAttribute('onclick').includes(`'${p._difficulty}'`)) {
+                        btn.click();
+                    }
+                });
+            }
+
+            if (p._type) {
+                const btns = el('setupContent').querySelectorAll('.type-btn');
+                btns.forEach(btn => {
+                    if(btn.getAttribute('onclick').includes(`'${p._type}'`)) {
+                        btn.click();
+                    }
+                });
+            }
+        }
+
+        function el(id) { return document.getElementById(id); }
+        function hide(id) { el(id).classList.add('hidden'); }
+        function show(id) { el(id).classList.remove('hidden'); }
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    </script>
+</body>
+</html>
